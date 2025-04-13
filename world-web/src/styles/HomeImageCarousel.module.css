@@ -1,0 +1,65 @@
+
+.imageCont {
+    width: 100%;
+    height: 85vh;
+}
+
+.image {
+    width: 100%;
+    height: 85vh;
+}
+.nextButton {
+    position: absolute;
+    top: 135vh;
+    right: 5px;
+}
+
+.prevButton {
+    position: absolute;
+    top: 135vh;
+    left: 5px;
+} 
+
+.nextButton, .prevButton {
+    background: none;
+}
+
+.nextButton:hover, .prevButton:hover {
+    background-color: rgba(0,0,0,0.8)
+}
+.dots {
+    position: absolute;
+    max-width: 20vw;
+    top: 180vh;
+    left: 50vw;
+    text-align: center;
+    justify-content: space-between;
+}
+
+.dot {
+    cursor: pointer;
+    height: 10px;
+    width: 10px;
+    margin-left: .5vw;
+    margin-right: .5vw;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.6s ease;
+}
+
+.active {
+    cursor: pointer;
+    height: 10px;
+    width: 10px;
+    margin-left: .5vw;
+    margin-right: .5vw;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    background-color: #717171;
+}
+
+.dot:hover {
+    background-color: #717171;
+}  

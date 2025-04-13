@@ -42,4 +42,17 @@
 .featured {
     width: 100%;
     height: 85vh;
+    background-color: rgb(27, 26, 26);
+}
+
+.featuredII {
+    width: 100%;
+    height: 85vh;
+    background-color: rgb(27, 26, 26);
+}
+
+.footer {
+    width: 100%;
+    height: 15vh;
+    background-color: rgb(27, 26, 26);
 }
