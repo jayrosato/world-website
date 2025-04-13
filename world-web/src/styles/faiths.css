@@ -1,0 +1,24 @@
+.faithTabs {
+    display: grid;
+    grid-template-rows: 100%;
+    grid-template-columns: repeat(auto-fill, 7rem);
+    
+}
+
+.faithTabs >*{
+    border-radius: 15px 15px 0px 0px;
+}
+
+.cards {
+    background-color: #1a1a1a;
+}
+
+.faithCard {
+    display: grid;
+    grid-template-columns: 20% 80%;
+    gap: 1rem;
+}
+
+.faithText {
+    color: white;
+}   
