@@ -1,22 +1,25 @@
 .header {
-    align-items: start;
-    justify-content: space-around;
-    display: flex;
-    flex-direction: row;
-    max-height: 5rem;
+    display: grid;
+    grid-template-columns: 33% 66%;
+    max-height: 14vh;
     line-height: 5rem;
-    padding-top: .5rem;
-    padding-bottom: .5rem;
+    padding-top: .2rem;
+    padding-bottom: .2rem;
     padding-left: .5rem;
 
     background-color: black;
     color: white;
+
+    position: fixed;
+    top: 0; 
+    width: 100%;
 }
 
 .branding{
     display: flex;
     flex-direction: row;
     align-items: flex-start;
+    overflow: hidden;
 }
 
 .navbarIcon {
@@ -32,18 +35,23 @@
 .navbarName {
     color: white;
     padding-right: 5rem;
-    font-size: 1rem;
+    font-size: .6rem;
     transition: font-size 0.5s ease;
 }
 
 .navbarName:hover {
     color: white;
     text-shadow: 8px 8px 8px rgb(67, 60, 60);
-    font-size: 1.05rem;
+    font-size: .7rem;
 }
 
+.links {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
 
-.header > a {
+.links > a {
     align-items: end;
     color: white;
     font-weight: bold;
@@ -52,7 +60,7 @@
     padding-left: 3rem;
 }
 
-.header > a:hover {
+.links > a:hover {
     color: white;
     text-shadow: 8px 8px 8px rgb(67, 60, 60);
     text-decoration: underline;

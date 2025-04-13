@@ -1,0 +1,45 @@
+.firstImg {
+    width: 100%;
+    height: 100vh;
+    background-image: url('../public/desktop-wallpaper-the-rings-battle-art.jpg');
+    background-size: cover;
+    background-position: bottom;
+}
+
+.frontText {
+    text-align: center;
+    margin:auto;
+    padding-top: 40vh;
+}
+
+.frontText > h1 {
+    font-size: 4rem;
+    text-shadow: 1px 1px 2px rgb(113, 5, 5), 0 0 1em rgb(68, 26, 26), 0 0 0.2em rgb(9, 9, 9);
+}
+
+.frontText > h1:hover {
+    text-shadow: 4px 4px 8px rgb(113, 5, 5), 0 0 4em rgb(68, 26, 26), 0 0 0.2em rgb(9, 9, 9);
+}
+
+.frontText > p {
+    margin-top: .3rem;
+    font-size: 1.5rem;
+    text-shadow: 1px 1px 2px rgb(113, 5, 5), 0 0 1em rgb(68, 26, 26), 0 0 0.2em rgb(9, 9, 9);
+}
+
+.frontText > p:hover {
+    text-shadow: 4px 4px 8px rgb(113, 5, 5), 0 0 4em rgb(68, 26, 26), 0 0 0.2em rgb(9, 9, 9);
+}
+.frontText > button {
+    margin-top: 1rem;
+}
+
+.frontText > button:hover {
+    transition: all 300ms ease-in-out;
+    transform: scale(1.1);
+}
+
+.featured {
+    width: 100%;
+    height: 85vh;
+}
