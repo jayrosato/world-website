@@ -11,7 +11,7 @@ export default function Navbar(){
                 <a href='http://localhost:5173/faiths'> Realms </a>
                 <a href='http://localhost:5173/faiths'> Faiths </a>
                 <a href='http://localhost:5173/faiths'> Leaders </a>
-                <a href='http://localhost:5173/faiths'> Events </a>
+                <a href='http://localhost:5173/login'> Login </a>
             </div>
         </nav>
     )

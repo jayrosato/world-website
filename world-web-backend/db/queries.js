@@ -1,5 +1,17 @@
 const pool = require('./pool');
 
+async function  getUsername(username){
+    const { rows } = await pool.query('SELECT id, username, password FROM users WHERE username = $1', [username])
+    const user = rows[0];
+}
+
+async function createUser(username, password, email){
+    const accessLevel = 'member';
+    await pool.query('INSERT INTO users (username, password, email, access_level) VALUES ($1, $2, $3, $4)'
+        , [username, password, email, accessLevel]);
+}
+
+
 async function getFaiths() {
     const {rows} = await pool.query('SELECT * FROM faiths');
     return rows;
@@ -10,4 +22,4 @@ async function getFaith(id) {
     return rows;
 }
 
-module.exports = {getFaiths, getFaith}
+module.exports = {getUsername, createUser, getFaiths, getFaith}

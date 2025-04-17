@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from '../styles/HomeImageCarousel.module.css'
 
 const images = [
@@ -8,7 +8,18 @@ const images = [
 ]
 
 export default function HomeImageCarousel() {
-  const [count, setCount] = useState(0);
+    const [count, setCount] = useState(0);
+    
+    useEffect(()=>{
+        setTimeout(() => {
+            if(count >= images.length-1){
+                setCount(0)
+            }
+            else{
+            setCount((count) => count+1)
+            }
+        }, 5000)}, [count])
+
     function nextImg() {
         if(count >= images.length-1){
             setCount(0)
@@ -37,11 +48,13 @@ export default function HomeImageCarousel() {
             )
         }
     }
-
+    function Image(){
+        return(<img className={`${styles.image} ${styles.fade}`} src={images[count]}/>)
+    }
   return (
       <div className={styles.imageCont}>
         <button className={styles.prevButton} onClick={() => prevImg()}>&#10094;</button>
-        <img className={styles.image} src={images[count]}/>
+        <Image />
         <button className={styles.nextButton} onClick={() => nextImg()}>&#10095;</button>
         <div className={styles.dots}>
             {images.map((image, index) => (
