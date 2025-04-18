@@ -5,6 +5,11 @@ async function  getUsername(username){
     return rows[0];
 }
 
+async function  getEmail(email){
+    const { rows } = await pool.query('SELECT id, username, password, email, access_level FROM users WHERE email = $1', [email])
+    return rows[0];
+}
+
 async function createUser(username, password, email){
     const accessLevel = 'member';
     await pool.query('INSERT INTO users (username, password, email, access_level) VALUES ($1, $2, $3, $4)'
@@ -22,4 +27,4 @@ async function getFaith(id) {
     return rows;
 }
 
-module.exports = {getUsername, createUser, getFaiths, getFaith}
+module.exports = {getUsername, getEmail, createUser, getFaiths, getFaith}

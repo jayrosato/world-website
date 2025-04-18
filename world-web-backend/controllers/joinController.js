@@ -8,12 +8,14 @@ const emailErr = 'Double check that your email is correct.'
 const validateUser = [
     body('username').trim()
         .isLength({min:1, max:255}).withMessage(`Username ${lengthErr}`)
-        .custom(async value => {
+        .custom(async(value) => {
             const checkUser = await db.getUsername(value);
             if (checkUser) {
-                body('username').withMessage('Username already in use');
-            }
-        }),
+                throw new Error('Username already in use');
+              }
+              return true;
+            }),
+
     body('password').trim()
         .isLength({min:1, max:255}).withMessage(`Password ${lengthErr}`),
     
@@ -26,6 +28,14 @@ const validateUser = [
     body('email').trim()
         .isEmail().withMessage(`${emailErr}`)
         .isLength({min:1, max:255}).withMessage(`Email ${lengthErr}`)
+        .custom(async(value) => {
+            const checkEmail = await db.getEmail(value);
+            if (checkEmail) {
+                throw new Error('Email already in use');
+              }
+              return true;
+            }),
+        
 ];
 
 const joinPost = [
