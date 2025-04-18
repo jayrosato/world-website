@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import '../styles/faiths.css'
+import styles from '../styles/faiths.module.css'
 
+import Navbar from './navbar'
 const faithGroups = ['Good', 'Evil', 'Gnostic'];
 
 let faithNums = 3
@@ -38,9 +39,9 @@ function CreateFaith({ url, viewGroup }) {
 
     if(viewGroup == group)
         return(
-            <div className="faithCard">
+            <div className={styles.faithCard}>
                 <img src={img}></img>
-                <div className="faithText">
+                <div className={styles.faithText}>
                     <h3>{name}</h3>
                     <p>{txt}</p>
                 </div>
@@ -58,14 +59,17 @@ export default function FaithsInfo() {
 
     return(
     <div>
-        <div className="faithTabs">
-            {faithGroups.map((group) => (<button key={group} onClick={()=>handleClick(group)}>{group} </button>))}
-        </div>
+        <Navbar />
+        <div className={styles.content}>
+            <div className={styles.faithTabs}>
+                {faithGroups.map((group) => (<button key={group} onClick={()=>handleClick(group)}>{group} </button>))}
+            </div>
 
-        <div className="cards">
-            {urls.map((url) => (
-                <CreateFaith key={url} url={url} viewGroup={viewGroup}/>
-            ))}
+            <div className={styles.cards}>
+                {urls.map((url) => (
+                    <CreateFaith key={url} url={url} viewGroup={viewGroup}/>
+                ))}
+            </div>
         </div>
     </div>
     );

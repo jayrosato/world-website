@@ -1,32 +1,53 @@
-import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useAuth } from './UserAuth'
 
-export default function Login() {
-    const[email, setEmail] = useState('')
-    const[pass, setPass] = useState('')
+export default function LoginComponent() {
+  const {setLoggedIn, setUser} = useAuth();
+  const [errorMsg, setErrorMsg] = useState('');
+  const[email, setEmail] = useState('')
+  const[password, setPassword] = useState('')
+  const navigate = useNavigate();
 
-    const handleSubmit=()=>{
-        console.log(email, pass)
-        const data={
-            username: email,
-            password: pass
-        }
-        fetch("http://localhost:3000/login/", {
+  const getLoginResponse = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/login", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data) 
-            })
-          }
+        credentials: "include", // important for sending cookies/sessions
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: email,
+          password: password
+        })
+      });
 
-    return(
-        <div>
-            <h1>Login</h1>
-            <input type="text" value={email} onChange={(event) => setEmail(event.target.value)}/>
-            <label for='email'>Email</label>
-            <input type="password" value={pass} onChange={(event) => setPass(event.target.value)}/>
-            <label for='password'>Pass</label>
-            <button onClick={()=>handleSubmit()}>Login</button>
-            <a href="/join"><button>Create Account</button></a>
-        </div>
-    )
+      if (response.status === 200) {
+        const data = await response.json();
+        setLoggedIn(true);
+        setUser(data.user)
+        navigate('/faiths'); // Redirect using react-router
+      } else {
+        const errorData = await response.json();
+        setErrorMsg(errorData.message || "Login failed");
+      }
+    } catch (err) {
+      console.error('Network or server error', err);
+      setErrorMsg('Something went wrong.');
+    }
+  };
 
+  return (
+    <div>
+        <h1>Login</h1>
+        <input type="text" value={email} onChange={(event) => setEmail(event.target.value)}/>
+        <label>Email</label>
+        <input type="password" value={password} onChange={(event) => setPassword(event.target.value)}/>
+        <label>Pass</label>
+      <button onClick={getLoginResponse}>Login</button>
+      {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
+      <a href="/join"><button>Create Account</button></a>
+    </div>
+  );
 }

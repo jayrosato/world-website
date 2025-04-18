@@ -13,8 +13,16 @@ const joinRouter = require('./routers/joinRouter')
 const faithsRouter = require('./routers/faithsRouter')
 
 const app = express();
-app.use(cors())
-app.use(session({secret:'secret', resave:false, saveUninitialized: false}))
+app.use(cors({
+    origin: 'http://localhost:5173', 
+    credentials: true               
+  }));
+app.use(session({secret:'secret', resave:false, saveUninitialized: false,
+    cookie: {
+        sameSite: 'lax',
+        secure: false
+      }
+}))
 app.use(passport.session())
 app.use(express.urlencoded({extended: false}))
 

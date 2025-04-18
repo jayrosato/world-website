@@ -11,8 +11,7 @@ const pool = require('../db/pool');
 passport.use(
     new LocalStrategy(async (username, password, done) => {
         try{
-            console.log(username)
-            const { rows } = await pool.query("SELECT id, email, password FROM users WHERE email = $1", [username]);
+            const { rows } = await pool.query("SELECT id, email, username, password, access_level FROM users WHERE email = $1", [username]);
             const user = rows[0]
 
             if(!user) {
@@ -47,11 +46,23 @@ passport.deserializeUser(async (id, done) => {
 }
 )
 
-loginRouter.post('/login',
-    passport.authenticate('local', {
-      successRedirect: '/',
-      failureRedirect: '/log-in'
-    })
-  );
+loginRouter.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (!user) {
+            return res.status(401).json({ message: info?.message || 'Login failed' });
+          }
+        if (err) {
+            return res.status(500).json({ message: 'Server error', error: err });
+        }
+  
+        req.logIn(user, (err) => {
+            if (err) {
+            return res.status(500).json({ message: 'Login error', error: err });
+            }
+  
+        return res.status(200).json({ message: 'Login successful', user: { id: user.id, email: user.email, username: user.username } });
+      });
+    })(req, res, next);
+  });
 
 module.exports = loginRouter;

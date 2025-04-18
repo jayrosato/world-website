@@ -33,7 +33,7 @@ const joinPost = [
         const errors = validationResult(req);
         if(!errors.isEmpty()) {
             console.log(errors)
-            return res.status(400)
+            return res.status(errors)
         }
         const hashedPass = await bcryptjs.hash(req.body.password, 10);
         const {username, email} = req.body;

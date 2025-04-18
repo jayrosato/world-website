@@ -1,4 +1,17 @@
 import styles from '../styles/navbar.module.css'
+import { useAuth } from './UserAuth'
+
+function Profile() {
+    const { user } = useAuth();
+    console.log(user.username)
+    if (!user){
+        return(<a href='http://localhost:5173/login'>Login</a>)
+    }
+    else{
+        return(<a href='http://localhost:5173/profile'>Welcome, {user.username}</a>)
+    }
+}
+
 
 export default function Navbar(){
     return(
@@ -11,7 +24,7 @@ export default function Navbar(){
                 <a href='http://localhost:5173/faiths'> Realms </a>
                 <a href='http://localhost:5173/faiths'> Faiths </a>
                 <a href='http://localhost:5173/faiths'> Leaders </a>
-                <a href='http://localhost:5173/login'> Login </a>
+                <Profile />
             </div>
         </nav>
     )

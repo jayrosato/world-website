@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Join() {
     const[username, setUsername] = useState('')
@@ -20,10 +20,25 @@ export default function Join() {
         body: JSON.stringify(data) 
             })
           }
+    
+    function JoinResponse() {
+        const[error, setError]=useState('')
+            useEffect(() => {
+                const getLoginResponse= async () => {
+                const response = await fetch("http://localhost:3000/join/")
+                const login= await response.json();
+                setError(login)
+                return {error}
+                }
+                getLoginResponse();
+            },
+            [error]);
+        }
 
     return(
         <div>
             <h1>Login</h1>
+            <JoinResponse/>
             <input type="text" name='username' value={username} onChange={(event) => setUsername(event.target.value)}/>
             <label>Username</label>
             <input type="text" name='email' value={email} onChange={(event) => setEmail(event.target.value)}/>
