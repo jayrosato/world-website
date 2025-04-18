@@ -10,7 +10,9 @@ const cors = require('cors');
 const indexRouter = require('./routers/indexRouter')
 const loginRouter = require('./routers/loginRouter')
 const joinRouter = require('./routers/joinRouter')
-const faithsRouter = require('./routers/faithsRouter')
+const profileRouter = require('./routers/profileRouter')
+const faithsRouter = require('./routers/faithsRouter');
+const { profile } = require('node:console');
 
 const app = express();
 app.use(cors({
@@ -34,6 +36,7 @@ app.use(express.json());
 app.all('/login', loginRouter)
 app.all('/session', loginRouter)
 app.all('/join', joinRouter)
+app.all('/profile/:id', profileRouter)
 
 app.all('/logout', (req, res, next) => {
   req.logout((err)=>{

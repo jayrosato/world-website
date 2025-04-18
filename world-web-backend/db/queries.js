@@ -16,6 +16,10 @@ async function createUser(username, password, email){
         , [username, password, email, accessLevel]);
 }
 
+async function updateUser(id, username, email){
+    const accessLevel = 'member';
+    await pool.query('UPDATE users SET username=$1, email=$2 WHERE id=$3', [username, email, id]);
+}
 
 async function getFaiths() {
     const {rows} = await pool.query('SELECT * FROM faiths');
@@ -27,4 +31,4 @@ async function getFaith(id) {
     return rows;
 }
 
-module.exports = {getUsername, getEmail, createUser, getFaiths, getFaith}
+module.exports = {getUsername, getEmail, createUser, updateUser, getFaiths, getFaith}

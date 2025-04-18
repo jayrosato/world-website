@@ -1,6 +1,6 @@
 import styles from '../styles/navbar.module.css'
 import { useAuth } from './UserAuth'
-//how do we stay logged in?
+
 function Profile() {
     const { user } = useAuth();
     if (!user){
@@ -27,7 +27,7 @@ export default function Navbar(){
             <div className={styles.links}>
                 <a href='http://localhost:5173/faiths'> Realms </a>
                 <a href='http://localhost:5173/faiths'> Faiths </a>
-                <a href='http://localhost:5173/faiths'> Leaders </a>
+                <a href='http://localhost:5173/forum'> Forum </a>
                 <Profile />
             </div>
         </nav>
