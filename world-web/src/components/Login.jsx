@@ -1,11 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from './UserAuth'
+import Navbar from './navbar'
 
+import styles from '../styles/login.module.css'
 export default function LoginComponent() {
   const {setLoggedIn, setUser} = useAuth();
   const [errorMsg, setErrorMsg] = useState('');
-  const[email, setEmail] = useState('')
+  const[username, setUsername] = useState('')
   const[password, setPassword] = useState('')
   const navigate = useNavigate();
 
@@ -18,7 +20,7 @@ export default function LoginComponent() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: email,
+          username: username,
           password: password
         })
       });
@@ -41,14 +43,23 @@ export default function LoginComponent() {
 
   return (
     <div>
-        <h1>Login</h1>
-        <input type="text" value={email} onChange={(event) => setEmail(event.target.value)}/>
-        <label>Email</label>
-        <input type="password" value={password} onChange={(event) => setPassword(event.target.value)}/>
-        <label>Pass</label>
-      <button onClick={getLoginResponse}>Login</button>
-      {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
-      <a href="/join"><button>Create Account</button></a>
+      <Navbar />
+      <div className={styles.content}>
+        <div className={styles.loginbox}>
+          <h1>Login</h1>
+          <label>Username or Email</label>
+          <input type="text" value={username} onChange={(event) => setUsername(event.target.value)}/>
+          
+          <label>Password</label>
+          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)}/>
+          
+          <button onClick={getLoginResponse}>Login</button>
+          <a href="/join"><button>Create Account</button></a>
+          <div className={styles.errors}>
+            {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

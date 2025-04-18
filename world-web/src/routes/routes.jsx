@@ -5,7 +5,8 @@ import Join from '../components/Join'
 import Logout from '../components/Logout';
 import Forum from '../components/Forum';
 import Profile from '../components/Profile';
-
+import RedirectIfAuthenticated from '../components/RedirectIfAuth';
+import RedirectIfNotAuthenticated from '../components/RedirectIfNotAuth';
 const routes = [
     {
         path: '/',
@@ -13,23 +14,39 @@ const routes = [
     },
     {
         path: "/faiths",
-        element:    <Faiths />,
+        element: <Faiths />,
     },
     {
+        
         path: '/login',
-        element: <Login />
+        element:(
+            <RedirectIfAuthenticated>
+                <Login />
+            </RedirectIfAuthenticated>
+        )
     },
+
     {
         path: '/join',
-        element: <Join />
+        element: (
+            <RedirectIfAuthenticated>
+                <Join />
+            </RedirectIfAuthenticated>
+        ) 
     },
     {
         path: '/logout',
-        element: <Logout />
+        element: (
+            <Logout />
+        )
     },
     {
         path: '/profile',
-        element: <Profile />
+        element: (
+            <RedirectIfNotAuthenticated>
+                <Profile />
+            </RedirectIfNotAuthenticated>
+        )
     },
     {
         path: '/forum',

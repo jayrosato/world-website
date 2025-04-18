@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useAuth } from './UserAuth'
 import { useNavigate } from "react-router-dom";
+import Navbar from './navbar'
+import styles from '../styles/join.module.css'
 
 export default function Join() {
     const { user } = useAuth()
@@ -51,19 +53,35 @@ export default function Join() {
 
     return(
         <div>
-            <h1>Login</h1>
-            <input type="text" name='username' value={username} onChange={(event) => setUsername(event.target.value)}/>
-            <label>Username</label>
-            <input type="text" name='email' value={email} onChange={(event) => setEmail(event.target.value)}/>
-            <label>Email</label>
-            <input type="password" name='password' value={password} onChange={(event) => setPass(event.target.value)}/>
-            <label>Pass</label>
-            <input type="password" name='confirmPassword' value={confirmPassword} onChange={(event) => setConfirmPass(event.target.value)}/>
-            <label>Confirm Pass</label>
-            {errorMsg && errorMsg.map((msg, index) => (
-                <p key={index} style={{ color: 'red' }}>{msg}</p>
-            ))}
-            <button onClick={()=>handleSubmit()}>Create</button>
+            <Navbar />
+            <div className={styles.content}>
+                <h1>Join the world today!</h1>
+                <div className={styles.joinBox}>
+                    <div className={styles.inputBox}>
+                        <label>Username</label>
+                        <input type="text" name='username' value={username} onChange={(event) => setUsername(event.target.value)}/>
+                    </div>
+                    <div className={styles.inputBox}>
+                        <label>Email</label>
+                        <input type="text" name='email' value={email} onChange={(event) => setEmail(event.target.value)}/>
+                    </div>
+                    <div className={styles.inputBox}>
+                        <label>Enter a Password</label>
+                        <input type="password" name='password' value={password} onChange={(event) => setPass(event.target.value)}/>
+                    </div> 
+                    <div className={styles.inputBox}>
+                        <label>Confirm your password</label>
+                        <input type="password" name='confirmPassword' value={confirmPassword} onChange={(event) => setConfirmPass(event.target.value)}/>
+                    </div>
+                </div>
+                <div className={styles.errors}>
+                    {errorMsg && errorMsg.map((msg, index) => (
+                            <p key={index} style={{ color: 'red' }}>{msg}</p>
+                    ))}
+                </div>
+                <button onClick={()=>handleSubmit()}>Join Now!</button>
+                <a href='/'><button>Nevermind...</button></a>
+            </div>
         </div>
     )
 
