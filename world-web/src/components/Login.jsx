@@ -13,7 +13,7 @@ export default function LoginComponent() {
     try {
       const response = await fetch("http://localhost:3000/login", {
         method: "POST",
-        credentials: "include", // important for sending cookies/sessions
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -27,8 +27,9 @@ export default function LoginComponent() {
         const data = await response.json();
         setLoggedIn(true);
         setUser(data.user)
-        navigate('/faiths'); // Redirect using react-router
-      } else {
+        navigate('/');
+      } 
+      else {
         const errorData = await response.json();
         setErrorMsg(errorData.message || "Login failed");
       }

@@ -65,4 +65,11 @@ loginRouter.post('/login', (req, res, next) => {
     })(req, res, next);
   });
 
+  loginRouter.get('/session', (req, res) => {
+    if(req.isAuthenticated()){
+        res.status(200).json({loggedIn: true, user: req.user})
+    }
+    else{res.status(401).json({loggedIn: false})}
+  })
+  
 module.exports = loginRouter;

@@ -33,12 +33,19 @@ const joinPost = [
         const errors = validationResult(req);
         if(!errors.isEmpty()) {
             console.log(errors)
-            return res.status(errors)
+            return res.status(500).json({errors:errors.array()})
         }
         const hashedPass = await bcryptjs.hash(req.body.password, 10);
         const {username, email} = req.body;
         await db.createUser(username, hashedPass, email)
-        res.redirect('/')
+        const user = await db.getUsername(username)
+        req.login(user, (err) => {
+            if (err) {
+              return res.status(500).json({ error: "Login after signup failed" });
+            }
+          
+            return res.status(200).json({ loggedIn: true, user: user });
+          });
     }
 ]
 

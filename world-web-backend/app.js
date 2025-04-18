@@ -32,7 +32,15 @@ app.all('/faiths/:id', faithsRouter)
 
 app.use(express.json());
 app.all('/login', loginRouter)
+app.all('/session', loginRouter)
 app.all('/join', joinRouter)
+
+app.all('/logout', (req, res, next) => {
+  req.logout((err)=>{
+      if(err){return next(err)}
+      res.status(200).json({loggedIn: false})
+  })
+})
 
 
 app.listen(port, () => {

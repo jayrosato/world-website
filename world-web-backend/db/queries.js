@@ -1,8 +1,8 @@
 const pool = require('./pool');
 
 async function  getUsername(username){
-    const { rows } = await pool.query('SELECT id, username, password FROM users WHERE username = $1', [username])
-    const user = rows[0];
+    const { rows } = await pool.query('SELECT id, username, password, email, access_level FROM users WHERE username = $1', [username])
+    return rows[0];
 }
 
 async function createUser(username, password, email){

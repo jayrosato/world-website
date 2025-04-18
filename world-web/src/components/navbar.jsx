@@ -1,14 +1,18 @@
 import styles from '../styles/navbar.module.css'
 import { useAuth } from './UserAuth'
-
+//how do we stay logged in?
 function Profile() {
     const { user } = useAuth();
-    console.log(user.username)
     if (!user){
         return(<a href='http://localhost:5173/login'>Login</a>)
     }
     else{
-        return(<a href='http://localhost:5173/profile'>Welcome, {user.username}</a>)
+        return(
+        <>
+            <a href='http://localhost:5173/profile'>Welcome, {user.username}</a>
+            <a href='http://localhost:5173/logout'>Log Out</a>
+        </>
+        )
     }
 }
 
