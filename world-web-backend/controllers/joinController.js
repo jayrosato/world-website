@@ -1,4 +1,5 @@
 const db = require('../db/queries');
+const model = require('../db/model')
 const {body, validationResult } = require('express-validator');
 const bcryptjs = require('bcryptjs')
 
@@ -47,6 +48,7 @@ const joinPost = [
         }
         const hashedPass = await bcryptjs.hash(req.body.password, 10);
         const {username, email} = req.body;
+        const access_level = 'user'
         await db.createUser(username, hashedPass, email)
         const user = await db.getUsername(username)
         req.login(user, (err) => {
