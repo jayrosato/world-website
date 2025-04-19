@@ -1,6 +1,7 @@
-const db = require('../db/queries');
+
 const {body, validationResult } = require('express-validator');
 const bcryptjs = require('bcryptjs')
+const { users } = require('../db/model')
 
 const lengthErr = 'must be between 1 and 255 characters.';
 const emailErr = 'Double check that your email is correct.'
@@ -9,7 +10,8 @@ const validateUser =(id)=> [
     body('username').trim()
         .isLength({min:1, max:255}).withMessage(`Username ${lengthErr}`)
         .custom(async(value) => {
-            const checkUser = await db.getUsername(value);
+            const checkUser = await users.getRecords(value, 'username')
+            //const checkUser = await db.getUsername(value);
             if (checkUser && checkUser.id != id) {
                 throw new Error('Username already in use');
             }
@@ -20,7 +22,8 @@ const validateUser =(id)=> [
         .isEmail().withMessage(`${emailErr}`)
         .isLength({min:1, max:255}).withMessage(`Email ${lengthErr}`)
         .custom(async(value) => {
-            const checkEmail = await db.getEmail(value);
+            const checkEmail = await users.getRecords(value, 'email')
+            //const checkEmail = await db.getEmail(value);
             if (checkEmail && checkEmail.id != id) {
                 throw new Error('Email already in use');
               }
@@ -48,8 +51,9 @@ const profilePost = [
         }
         //const hashedPass = await bcryptjs.hash(req.body.password, 10);
         const {username, email} = req.body;
-        await db.updateUser(id, username, email)
-        const user = await db.getUsername(username)
+        await users.updateRecord(id, {'username':username, 'email':email})
+        //await db.updateUser(id, username, email)
+        const user = await users.getRecords(username, 'username')
         req.login(user, (err) => {
             if (err) {
               return res.status(500).json({ error: "Login after signup failed" });

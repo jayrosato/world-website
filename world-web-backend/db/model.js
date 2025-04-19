@@ -7,7 +7,7 @@ const formatDateISO = (date) => {
 };
 
 const now = new Date(Date.now()).toISOString();
-
+const models = []
 //store columns as {column:[]}
 class Model {
     constructor(tableName){
@@ -16,6 +16,7 @@ class Model {
             throw new Error('Invalid table name');
         }
         this.columns = []
+        models.push(this)
     }
 
     addField(name, type, maxlength=null, nullable=false, unique=false, defaultValue=null, onUpdate=false){
@@ -118,6 +119,7 @@ class Model {
             console.error(`Failed to compare columns of table ${this.tableName} with db.`)
             return
         }
+        console.log(`Table ${this.tableName} is up to date!`)
     }
 
     async validateField(name, value, id){
@@ -248,6 +250,15 @@ class Model {
             console.error(`Error recording information to the database.`)
         }
     }
+
+    async deleteRecord(id){
+        try{await pool.query(`DELETE FROM ${this.tableName} WHERE id=$1`, [id])}
+        catch (err) {
+            console.error(err)
+            return 'Operation failed'
+        }
+    }
+
     async getRecords(value, column){
         try{
             const { rows } = await pool.query(`SELECT * FROM ${this.tableName} WHERE ${column} = $1`, [value])
@@ -264,72 +275,6 @@ module.exports = Model
 
 
 /*
-class Model{
-    constructor(tableName, addedUpdate=null){
-        this.tableName = tableName
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(this.tableName)) {
-            throw new Error('Invalid table name');
-        }
-        this.columns = []
-        this.addedUpdate = addedUpdate
-    }
-    //add non nullable and unique statements
-    //foreign keys
-    varchar(name, length){
-        const qCreate = `${name} VARCHAR(${length})`
-        const qAdd = `ALTER TABLE ${this.tableName} ADD COLUMN ${name} VARCHAR ${length}`
-        this.columns.push({columnName:name, create:qCreate, add: qAdd, type: 'varchar', maxlength:length})
-    }
-    integer(name){
-        const qCreate = `${name} INTEGER`
-        const qAdd = `ALTER TABLE ${this.tableName} ADD COLUMN ${name} INTEGER`
-        this.columns.push({columnName:name, create:qCreate, add: qAdd, type:'integer'})
-    }
-    text(name){
-        const qCreate = `${name} TEXT`
-        const qAdd = `ALTER TABLE ${this.tableName} ADD COLUMN ${name} TEXT`
-        this.columns.push({columnName:name, create:qCreate, add: qAdd, type:'text'})
-    }
-    date(name){
-        const qCreate = `${name} DATE`
-        const qAdd = `ALTER TABLE ${this.tableName} ADD COLUMN ${name} DATE`
-        this.columns.push({columnName:name, create:qCreate, add: qAdd, type:'date'})
-    }
-    dateTime(name){
-        const qCreate = `${name} TIMESTAMP`
-        const qAdd = `ALTER TABLE ${this.tableName} ADD COLUMN ${name} TIMESTAMP`
-        this.columns.push({columnName:name, create:qCreate, add: qAdd, type:'datetime'})
-    }
-
-    async checkInDB(){
-        if (this.addedUpdate == true) {
-            if (!this.columns.find(c => c.columnName === 'created_at')) {
-                this.dateTime('created_at');
-            }
-            if (!this.columns.find(c => c.columnName === 'updated_at')) {
-                this.dateTime('updated_at');
-            }
-        }
-        const { rows } = await pool.query('SELECT count(*) FROM information_schema.tables WHERE table_name = $1', [this.tableName])
-        if(parseInt(rows[0].count) === 0){
-            const columnNames = this.columns.map(c=> c.create)
-            const statement ='id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,'+columnNames.join(', ')
-            try {
-                await pool.query(`CREATE TABLE ${this.tableName} (${statement})`)
-            }
-            catch (err) {
-                console.error(err)
-                return 'Operation failed'
-            }
-        }
-        
-        
-        catch(err){
-            console.error(err)
-            return `Error in validating ${this.tableName}`
-        }
-    }
-
     async clean(){
         try{
             const { fields } = await pool.query('SELECT * FROM users LIMIT 0')
@@ -345,103 +290,6 @@ class Model{
         catch(err){
             console.error(err)
             return `Error in validating ${this.tableName}`
-        }
-    }
-
-    async createRecord(values){
-        const createdCol = this.columns.find(c => c.columnName === 'created_at')
-        if(createdCol){
-            values.push(Date.now())
-        }
-        const updatedCol = this.columns.find(c => c.columnName === 'updated_at')
-        if(updatedCol){
-            values.push(Date.now())
-        }
-
-        if (values.length !== this.columns.length) {
-            console.error(`Expected ${this.columns.length} values but got ${values.length}`);
-            return 'Incorrect number of values';
-        }
-
-        const columns = this.columns.map(c=> c.columnName)
-        const validated = this.validate(columns, values)
-        if(validated != true){
-            return validated
-        }
-
-        const statement = columns.join(', ') 
-        try{
-            const placeholders = values.map((_, i) => `$${i + 1}`).join(', ')
-            await pool.query(`INSERT INTO ${this.tableName} (${statement}) VALUES (${placeholders})`, values)
-        }
-        catch (err) {
-            console.error(err)
-            return 'Operation failed'
-        }
-    }
-
-    
-    //pass {column:value, column:value}
-    //assuming that all datetimes are prodecurally generated and therefore do not need to be validated
-    async validate(columns, values){
-        if(columns.length != values.length){
-            return `Error updating ${this.tableName} -- number of values and columns provided did not match. Make sure you enter each pair as a {column:value} pair`
-        }
-        for(let i=0; i<values.length; i++){
-            const value = values[i]
-            const column = this.columns.find(c => c.columnName === columns[i])
-            const type = column.type
-            if(type == 'varchar'){
-                if(value.length > column.maxlength){
-                    return `${column.name} in ${this.tableName} cannot greater than ${column.maxlength} characters.`
-                }
-            }
-            if(type == 'integer'){
-                let int = parseInt(value)
-                if(isNaN(int)){
-                    return `${column.name} in ${this.tableName} must be an integer.`
-                }
-            }
-            if(type == 'date'){
-                const parsed = new Date(value)
-                if (isNaN(parsed)) {
-                return `${column.name} in ${this.tableName} must be a valid date.`
-            }
-            values[i] = formatDateISO(parsed)
-            }
-        }
-        return true
-    }
-
-    async updateRecord(id, columns, values){
-        if (columns.length != values.length){
-            console.log(`Error: Columns and values for update statement in table ${this.tableName} do not match, double check inputs`)
-            return
-        }
-
-        const validated = this.validate(columns, values)
-        if(validated != true){
-            return validated
-        }
-        updatedCol = this.columns.find(c => c.name === 'updated_at')
-        if(updatedCol){
-            columns.push('updated_at')
-            values.push(Date.now().toISOString())
-        }
-        const assignments  = columns.map((col, i) => `${col} = $${i+1}`).join(', ')
-        const query = `UPDATE ${this.tableName} SET ${assignments} WHERE id = $${columns.length + 1}`
-
-        try{await pool.query(query, [...values, id])}
-        catch (err) {
-            console.error(err)
-            return 'Operation failed'
-        }
-    }
-    async deleteRecord(id){
-        try{await pool.query(`DELETE FROM ${this.tableName} WHERE id=$1`, [id])}
-        catch (err) {
-            console.error(err)
-            return 'Operation failed'
         }
     }
     async findByID(id) {
@@ -505,12 +353,25 @@ users.addField('access_level', 'varchar', 255, false, false, 'user', false)
 users.addField('created_at', 'timestamp', null, false, false, now)
 users.addField('updated_at', 'timestamp', null, null, false, now, true)
 
-module.exports = users
+const faiths = new Model('faiths')
+faiths.addField('name', 'varchar', 255, false, true, null, false)
+faiths.addField('image_source', 'varchar', 255, false, false, null, false)
+faiths.addField('description', 'varchar', 255, false, false, null, false)
+faiths.addField('faith_group', 'varchar', 255, false, false, null, false)
+faiths.addField('created_at', 'timestamp', null, false, false, now)
+faiths.addField('updated_at', 'timestamp', null, null, false, now, true)
+
+module.exports = { users, faiths }
 
 
+function migrate(){
+    for(let i=0; i< models.length;i++){
+        models[i].checkInDB()
+    }
+}
 
+//migrate()
 
-const forums = new Model('forums')
 
 /*
 async function initModel(model){

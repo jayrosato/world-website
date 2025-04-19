@@ -43,9 +43,9 @@ const routes = [
     {
         path: '/profile',
         element: (
-            <RedirectIfNotAuthenticated>
+            //<RedirectIfNotAuthenticated>
                 <Profile />
-            </RedirectIfNotAuthenticated>
+            //</RedirectIfNotAuthenticated>
         )
     },
     {

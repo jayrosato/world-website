@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import Navbar from './navbar';
 import { useState, useEffect } from 'react';
 import { useAuth } from './UserAuth'
@@ -18,10 +17,6 @@ export default function ProfileComponent (){
           setEmail(user.email);
         }},[user])
 
-    if (!user) {
-        return <p>You must be logged in to see this content</p>;
-    }
-    
     async function handleSubmit(){
         try{
             const response = await fetch("http://localhost:3000/profile/"+user.id, {

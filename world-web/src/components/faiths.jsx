@@ -21,8 +21,8 @@ function CreateFaith({ url, viewGroup }) {
         const fetchFaithJSON= async () => {
             const response = await fetch(url)
             const faithInfoArray = await response.json();
-
-            const faithInfo = faithInfoArray[0]
+            console.log(faithInfoArray)
+            const faithInfo = faithInfoArray
             const faithName = await faithInfo.name;
             const faithImg = await faithInfo.image_source;
             const faithTxt = await faithInfo.description;
