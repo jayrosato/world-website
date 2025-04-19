@@ -248,9 +248,18 @@ class Model {
             console.error(`Error recording information to the database.`)
         }
     }
+    async getRecords(value, column){
+        try{
+            const { rows } = await pool.query(`SELECT * FROM ${this.tableName} WHERE ${column} = $1`, [value])
+            return rows[0]
+        }
+        catch(err){
+            console.error(`Error fetching data from ${this.tableName}`)
+        }
+    }
 }
 
-
+module.exports = Model
 
 
 
@@ -487,8 +496,23 @@ class Model{
 
 }
 */
+
+const users = new Model('users')
+users.addField('username', 'varchar', 255, false, true, null, false)
+users.addField('email', 'varchar', 255, false, true, null, false)
+users.addField('password', 'varchar', 255, false, false, null, false)
+users.addField('access_level', 'varchar', 255, false, false, 'user', false)
+users.addField('created_at', 'timestamp', null, false, false, now)
+users.addField('updated_at', 'timestamp', null, null, false, now, true)
+
+module.exports = users
+
+
+
+
 const forums = new Model('forums')
 
+/*
 async function initModel(model){
     model.addField('title', 'varchar', 255, false, true)
     model.addField('created_at', 'timestamp', null, false, false, now)
@@ -501,6 +525,6 @@ async function initModel(model){
 }
 
 initModel(forums)
-
+*/
 
 
