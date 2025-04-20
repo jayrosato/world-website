@@ -37,6 +37,7 @@ app.all('/login', loginRouter)
 app.all('/session', loginRouter)
 app.all('/join', joinRouter)
 app.all('/profile/:id', profileRouter)
+app.all('/profile/:id/delete', profileRouter)
 
 app.all('/logout', (req, res, next) => {
   req.logout((err)=>{

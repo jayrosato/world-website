@@ -1,3 +1,27 @@
 .content{
     margin-top: 20vh;
+    max-width: 15rem;
+    max-height: 25rem;
+    margin-left: auto;
+    margin-right: auto;
+    display: grid;
+    grid-template-columns: auto;
+    gap: 1rem;
+    text-align: center;
+}
+
+.fields {
+    display: grid;
+    grid-template-columns: auto auto;
+    row-gap: 1rem;
+}
+
+.content > button {
+    max-width: 9rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.deleteButton{
+    background-color: red;
 }

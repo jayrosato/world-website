@@ -64,5 +64,19 @@ const profilePost = [
     }
 ]
 
+async function deleteProfilePost(req, res){
+    const id = req.params.id
+    req.logout((err)=>{
+        if(err){return next(err)}
+        res.status(200).json({loggedIn: false})
+    })
+    try{
+        await users.deleteRecord(id)
+        return res.status(200).json({ loggedIn: false });
+    }
+    catch(err){
+        return res.status(500).json({ error: "Failed to delete account." });
+    }
+}
 
-module.exports = {profilePost}
+module.exports = {profilePost, deleteProfilePost}
