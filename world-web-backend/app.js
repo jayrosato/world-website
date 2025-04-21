@@ -11,6 +11,7 @@ const indexRouter = require('./routers/indexRouter')
 const loginRouter = require('./routers/loginRouter')
 const joinRouter = require('./routers/joinRouter')
 const profileRouter = require('./routers/profileRouter')
+const forumRouter = require('./routers/forumRouter')
 const faithsRouter = require('./routers/faithsRouter');
 const { profile } = require('node:console');
 
@@ -35,9 +36,15 @@ app.all('/faiths/:id', faithsRouter)
 app.use(express.json());
 app.all('/login', loginRouter)
 app.all('/session', loginRouter)
+
 app.all('/join', joinRouter)
 app.all('/profile/:id', profileRouter)
 app.all('/profile/:id/delete', profileRouter)
+
+app.all('/forum', forumRouter)
+app.all('/forum/:id', forumRouter)
+app.all('/forum/:id/update', forumRouter)
+app.all('/forum/:id/delete', forumRouter)
 
 app.all('/logout', (req, res, next) => {
   req.logout((err)=>{

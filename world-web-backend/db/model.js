@@ -19,7 +19,7 @@ class Model {
         models.push(this)
     }
 
-    addField(name, type, maxlength=null, nullable=false, unique=false, defaultValue=null, onUpdate=false){
+    addField(name, type, maxlength=null, nullable=false, unique=false, defaultValue=null, onUpdate=false, linkToTable=null, linkToField=null, onDelete=null){
         const moduleColumns = this.columns.map(c=> c.name)
         if(moduleColumns.includes(name)){
             console.log(`${name} is not unique.`)
@@ -56,6 +56,44 @@ class Model {
                 add: addSQL,
             })
         }
+        else if(type == 'foreign key'){
+            if(!linkToTable || !linkToField){
+                console.error(`Must provide linking information for foreign key fields.`)
+            }
+
+            if(onDelete){
+                const capitalizedDelete = onDelete.toUpperCase()
+                const createSQL = `${name} INTEGER, CONSTRAINT fk_${linkToTable} FOREIGN KEY(${name}) REFERENCES ${linkToTable} (${linkToField}) ON DELETE ${capitalizedDelete}`
+                const addSQL = `ALTER TABLE ${this.tableName} ADD COLUMN ${name} INTEGER, ADD CONSTRAINT fk_${linkToTable} FOREIGN KEY(${name}) REFERENCES ${linkToTable} (${linkToField}) ON DELETE ${capitalizedDelete}`
+                this.columns.push({
+                    name:name, 
+                    type:type, 
+                    maxlength:maxlength, 
+                    nullable:nullable, 
+                    unique:unique, 
+                    onUpdate: false,
+                    defaultValue:false,
+                    create:createSQL, 
+                    add: addSQL,
+                })
+            }
+
+            else{
+                const createSQL = `${name} INTEGER, CONSTRAINT fk_${linkToTable} FOREIGN KEY(${name}) REFERENCES ${linkToTable} (${linkToField}) ON DELETE ${onDelete}`
+                const addSQL = `ALTER TABLE ${this.tableName} ADD COLUMN ${name} INTEGER, ADD CONSTRAINT fk_${linkToTable} FOREIGN KEY(${name}) REFERENCES ${linkToTable} (${linkToField})`
+                this.columns.push({
+                    name:name, 
+                    type:type, 
+                    maxlength: maxlength, 
+                    nullable: nullable, 
+                    unique: unique, 
+                    onUpdate: false,
+                    defaultValue: false,
+                    create: createSQL, 
+                    add: addSQL,
+                })
+            }
+        }
         else{
             console.error(`Data type ${type} is not a valid type.`)
             return
@@ -70,6 +108,7 @@ class Model {
                 const columnNames = this.columns.map(c=> c.create)
                 const statement ='id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,'+columnNames.join(', ')
                 try {
+                    console.log(statement)
                     await pool.query(`CREATE TABLE ${this.tableName} (${statement})`)
                 }
                 catch (err) {
@@ -204,9 +243,10 @@ class Model {
         }
 
         cols = cols.join(', ')
-        vals = vals.map(v => "'"+v+"'")
+        vals = vals.map(v => v == null ? 'NULL' : `'${v}'`);
         vals = vals.join(", ")
         try{
+            console.log(`INSERT INTO ${this.tableName} (${cols}) VALUES (${vals})`)
             await pool.query(`INSERT INTO ${this.tableName} (${cols}) VALUES (${vals})`)
         }
         catch(err){
@@ -260,12 +300,86 @@ class Model {
     }
 
     async getRecords(value, column){
+        if(!value && !column){
+            const { rows } = await pool.query(`SELECT * FROM ${this.tableName}`)
+            return rows
+        }
         try{
             const { rows } = await pool.query(`SELECT * FROM ${this.tableName} WHERE ${column} = $1`, [value])
             return rows[0]
         }
         catch(err){
             console.error(`Error fetching data from ${this.tableName}`)
+        }
+    }
+
+    //filterColumns/filterValues/operators can be a string or a list
+        //if filter columns is a list and the other two are strings, it will default to assuming you want to match all columns based on the same condition
+        //if using a list for filterValues, the list length must match that of filterColumns
+    async filterTable(filterColumns, filterValues, operators, cond='AND'){
+        const statement = []
+        if(typeof filterColumns === 'string' && typeof filterValues === 'string'){
+            if(!operators){
+                operators = '='
+            }
+            try{
+                const { rows } = await pool.query(`SELECT * FROM ${this.tableName} WHERE ${filterColumns} ${operators} $1 `, [filterValues])
+                return rows
+            }
+            catch(err){
+                console.error(`Error fetching records from ${this.tableName}`)
+                return
+            }
+        }
+
+        if(typeof filterColumns === 'object' && typeof filterValues === 'string'){
+            if(!operators){
+                operators = '='
+            }
+            for(let i=0; i<filterColumns.length; i++){
+                const condition = `${filterColumns[i]} ${operators} $1`
+                statement.push(condition)
+            }
+            const sql = statement.join(` ${cond} `)
+            try{
+                const { rows } = await pool.query(`SELECT * FROM ${this.tableName} WHERE ${sql}`, [filterValues])
+                return rows
+            }
+            catch(err){
+                console.error(`Error fetching records from ${this.tableName}`)
+                return
+            }
+        }
+
+        else if(filterColumns.length != filterValues.length){
+            console.error(`Mismatched filter columns and filter values`)
+                return
+        }
+
+        else if(filterColumns.length > 1 && filterValues.length > 1){
+            for(let i=0; i<filterColumns.length; i++){
+                const condition = `${filterColumns[i]} ${operators[i]} $${i+1}`
+                statement.push(condition)
+            }
+            const sql = statement.join(' AND ')
+            try{
+                const { rows } = await pool.query(`SELECT * FROM ${this.tableName} WHERE ${statement}`, [...filterValues])
+                return rows
+            }
+            catch(err){
+                console.error(`Error fetching records from ${this.tableName}`)
+            }
+        }
+    }
+
+    async mergeTables(table, getColumns, matchColumn, foreignMatchColumn){
+        const statement=getColumns.join(' ,')
+        try{
+            const { rows } = await pool.query(`SELECT ${statement} FROM ${this.tableName} INNER JOIN ${table} ON ${this.tableName}.${matchColumn} = ${table}.${foreignMatchColumn}`)
+            return rows
+        }
+        catch(err){
+            console.error(`Error joining records from ${this.tableName} and ${table}`)
         }
     }
 }
@@ -361,7 +475,15 @@ faiths.addField('faith_group', 'varchar', 255, false, false, null, false)
 faiths.addField('created_at', 'timestamp', null, false, false, now)
 faiths.addField('updated_at', 'timestamp', null, null, false, now, true)
 
-module.exports = { users, faiths }
+const posts = new Model('posts')
+posts.addField('author', 'foreign key', null, false, false, null, false, 'users', 'id', 'cascade')
+posts.addField('title', 'varchar', 255, false, false, 'New Post')
+posts.addField('text', 'text', null, true, false, null)
+posts.addField('parent_post', 'foreign key', null, true, false, null, null, 'posts', 'id', 'cascade')
+posts.addField('created_at', 'timestamp', null, false, false, now)
+posts.addField('updated_at', 'timestamp', null, null, false, now, true)
+
+module.exports = { users, faiths, posts }
 
 
 function migrate(){

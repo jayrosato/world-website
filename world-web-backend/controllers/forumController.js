@@ -1,0 +1,60 @@
+//add users to replies/post detail view in getPost
+//return post id in create post? maybe
+const { posts } = require('../db/model')
+const {body, validationResult } = require('express-validator');
+
+async function getPosts(req, res) {
+    let postsInfo = await posts.mergeTables('users', ['posts.id', 'title', 'text', 'author','parent_post', 'username'], 'author', 'id')
+    res.json(postsInfo)
+}
+
+async function getPost(req, res) {
+    const id = req.params.id
+    let post = await posts.filterTable(['id', 'parent_post'], id, '=', 'OR')
+    res.json(post)
+}
+
+const lengthErr = 'must be between 1 and 255 characters.';
+const validatePost = [
+    body('title').trim()
+        .isLength({min:1, max:255}).withMessage(`Title ${lengthErr}`) 
+];
+
+const postCreatePost = [
+    validatePost, async function(req, res) {
+        const errors = validationResult(req);
+        if(!errors.isEmpty()) {
+            return res.status(400)
+        }
+        const {author, title, text, parent_post} = req.body;
+        await posts.createRecord({'author':author, 'title':title, 'text':text, 'parent_post':parent_post})
+        return res.status(200).json({ message: "Reply posted successfully" });
+    }
+]
+
+const postUpdatePost = [
+    validatePost, async function(req, res) {
+        const id = req.params.id
+        const errors = validationResult(req);
+        if(!errors.isEmpty()) {
+            return res.status(400)
+        }
+        const {author, title, text, parent_post} = req.body;
+        await posts.updateRecord(id, {'title':title, 'text':text})
+        return res.status(200).json({ message: "Reply updated successfully" });
+    }
+]
+
+async function postDeletePost(req, res){
+    const id = req.params.id
+    try{
+        await posts.deleteRecord(id)
+        return res.status(200).json({ message: "Reply deleted successfully" });;
+    }
+    catch(err){
+        return res.status(500).json({ error: "Failed to delete post." });
+    }
+}
+
+
+module.exports = { getPosts, getPost, postCreatePost, postUpdatePost, postDeletePost }

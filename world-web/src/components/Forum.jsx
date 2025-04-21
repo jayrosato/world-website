@@ -5,66 +5,72 @@ import { useAuth } from './UserAuth'
 import Navbar from './navbar'
 
 
-function CreateFaith({ url, viewGroup }) {
-    const [name, setName] = useState('');
-    const [img, setImg] = useState(null);
-    const [txt, setTxt] = useState(null);
-    const [group, setGroup] = useState(null);
-
-    useEffect(() => {
-        const fetchFaithJSON= async () => {
-            const response = await fetch(url)
-            const faithInfoArray = await response.json();
-
-            const faithInfo = faithInfoArray[0]
-            const faithName = await faithInfo.name;
-            const faithImg = await faithInfo.image_source;
-            const faithTxt = await faithInfo.description;
-            const faithGroup = await faithInfo.faith_group;
-
-            setName(faithName);
-            setImg(faithImg);
-            setTxt(faithTxt)
-            setGroup(faithGroup)
-        }
-        fetchFaithJSON();
-    }, [url]
-    );
-
-    if(viewGroup == group)
+function CreatePost(){
+    const { user } = useAuth();
+    if(user){
         return(
-            <div className={styles.faithCard}>
-                <img src={img}></img>
-                <div className={styles.faithText}>
-                    <h3>{name}</h3>
-                    <p>{txt}</p>
-                </div>
-            </div>
+            <a href='/forum/create'><button>Create a post</button></a>
         )
+    }
+    else{
+        return(
+            <>
+                <a href='/login'>Login to create a post</a>
+            </>
+        )
+    }
 }
 
-export default function FaithsInfo() {
+function LoadPosts() {
 
-    const [viewGroup, setViewGroup] = useState('Good')
+    const[posts, setPosts] = useState([])
 
-    const handleClick = (group) =>{
-        setViewGroup(group)
-    }
+    useEffect(() => {
+        const fetchPostsJSON = async () => {
+            const response = await fetch('http://localhost:3000/forum');
+            const postsArray = await response.json();
+    
+            const newPosts = postsArray
+                .filter(p => p.parent_post == null)
+                .map(p => ({
+                    id: p.id,
+                    author: p.author,
+                    authorUsername: p.username,
+                    title: p.title,
+                    text: p.text
+                }));
+    
+            setPosts(newPosts);
+        };
+    
+        fetchPostsJSON();
+    }, []);
 
     return(
-    <div>
-        <Navbar />
-        <div className={styles.content}>
-            <div className={styles.faithTabs}>
-                {faithGroups.map((group) => (<button key={group} onClick={()=>handleClick(group)}>{group} </button>))}
+            <div className={styles.postsCont}>
+                <h3>Posts:</h3>
+                <div className={styles.posts}>
+                {posts.map((post) => (
+                    <div className={styles.post} key={post.id}>
+                        <a href={`/forum/${post.id}`}> <h3>{post.title}</h3></a>
+                        <h5>{post.authorUsername}</h5>
+                    </div>
+                    ))}
+                </div>
             </div>
+    )
+}
 
-            <div className={styles.cards}>
-                {urls.map((url) => (
-                    <CreateFaith key={url} url={url} viewGroup={viewGroup}/>
-                ))}
+
+export default function Forum() {
+
+    return(
+        <div>
+            <Navbar />
+            <div className={styles.content}>
+                <CreatePost />
+                <LoadPosts />
             </div>
         </div>
-    </div>
     );
 }
