@@ -10,7 +10,7 @@ async function getPosts(req, res) {
 
 async function getPost(req, res) {
     const id = req.params.id
-    let post = await posts.filterTable(['id', 'parent_post'], id, '=', 'OR')
+    let post = await posts.mergeFilterTable(['posts.id', 'title', 'text', 'author', 'parent_post', 'username'], 'users', 'author', 'id', {'posts.id':id, 'parent_post':id}, 'OR')
     res.json(post)
 }
 
@@ -35,11 +35,13 @@ const postCreatePost = [
 const postUpdatePost = [
     validatePost, async function(req, res) {
         const id = req.params.id
+        console.log(id)
         const errors = validationResult(req);
         if(!errors.isEmpty()) {
-            return res.status(400)
+            console.error(errors)
+            return res.status(500).json({ error: "Failed to delete post." })
         }
-        const {author, title, text, parent_post} = req.body;
+        const {title, text} = req.body;
         await posts.updateRecord(id, {'title':title, 'text':text})
         return res.status(200).json({ message: "Reply updated successfully" });
     }

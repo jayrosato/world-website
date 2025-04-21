@@ -280,7 +280,6 @@ class Model {
             }
                 
         }
-
         const assignments  = cols.map((col, i) => `${col} = $${i+1}`).join(', ')
         const query = `UPDATE ${this.tableName} SET ${assignments} WHERE id = $${cols.length + 1}`
         try{
@@ -380,9 +379,38 @@ class Model {
         }
         catch(err){
             console.error(`Error joining records from ${this.tableName} and ${table}`)
+            return
+        }
+    }
+    
+    //{column:filter}
+    async mergeFilterTable(getColumns, joinTable, matchColumn, foreignMatchColumn, filterColumnValue, logic = 'AND') {
+        const colsStatement = getColumns.join(', ');
+        const filterCols = Object.keys(filterColumnValue);
+        const filterVals = Object.values(filterColumnValue);
+    
+        const filter = filterCols.map((col, i) => `${col} = $${i + 1}`);
+        const whereStatement = filter.join(` ${logic} `);
+    
+        const query = `
+            SELECT ${colsStatement}
+            FROM ${this.tableName}
+            INNER JOIN ${joinTable}
+            ON ${this.tableName}.${matchColumn} = ${joinTable}.${foreignMatchColumn}
+            WHERE ${whereStatement}
+        `;
+    
+        try {
+            const { rows } = await pool.query(query, filterVals);
+            return rows;
+        } catch (err) {
+            console.error(`Error joining records from ${this.tableName} and ${joinTable}`, err);
+            return null;
         }
     }
 }
+
+
 
 module.exports = Model
 

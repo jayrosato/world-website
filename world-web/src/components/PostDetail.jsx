@@ -69,10 +69,19 @@ function Reply({ onReply }){
     }
 }
 
-function LoadReplies({ reloadFlag }) {
+function LoadReplies({ reloadFlag, onReload }) {
     const { postId } = useParams();
     const[mainPost, setMainPost] = useState(null)
     const[replies, setReplies] = useState([])
+    const[userId, setUserId] = useState(null)
+    const { user } = useAuth();
+    const[errorMsg, setErrorMsg] = useState(null)
+    const[msg, setMsg] = useState(null)
+
+    useEffect(() => {
+        if (user) {
+            setUserId(user.id)
+        }},[user])
 
     useEffect(() => {
         const fetchPostsJSON = async () => {
@@ -93,6 +102,7 @@ function LoadReplies({ reloadFlag }) {
                     id: r.id,
                     author: r.author,
                     authorUsername: r.username,
+                    title: r.title,
                     text: r.text
                 }));
             setReplies(replies);
@@ -101,6 +111,84 @@ function LoadReplies({ reloadFlag }) {
         fetchPostsJSON();
     }, [postId, reloadFlag]);
     
+    async function updatePost(postId, title, text) {
+        const url = `http://localhost:3000/forum/${postId}/update`
+        try{
+            const response = await fetch(url, { 
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id: postId,
+                    title: title,
+                    text: text
+                })
+            });
+            const data = await response.json();
+            if (response.status === 200) {
+                setMsg('Post updated.')
+                onReload()
+            } 
+            else {
+                const errorMessages = data.error
+                setErrorMsg(errorMessages);
+            }
+        }
+        catch (err) {
+            console.error('Network or server error', err);
+        }
+    }
+
+    async function deletePost(postId) {
+        const url = `http://localhost:3000/forum/${postId}/delete`
+        try{
+            const response = await fetch(url, { 
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id: postId
+                })
+            });
+            const data = await response.json();
+            if (response.status === 200) {
+                setMsg('Post deleted.')
+                onReload()
+            } 
+            else {
+                const errorMessages = data.errors.map(error => error.msg);
+                setErrorMsg(errorMessages);
+            }
+        }
+        catch (err) {
+            console.error('Network or server error', err);
+        }
+    }
+    function CheckMainPost(){
+        if(mainPost.author == userId){
+            return(
+                <>
+                    <button>Edit Post</button>
+                    <button>Delete Post</button>
+                </>
+            )
+        }
+    }
+    function CheckReply( {post} ){
+        const[reply, setReply] = useState(post.text)
+        if(post.author == userId){
+            return(
+                <>
+                    <input value={reply} onChange={(event) => setReply(event.target.value)} />
+                    <button onClick = {() => updatePost(post.id, post.title, reply)}>Edit Reply</button>
+                    <button onClick = {() => deletePost(post.id)}>Delete Reply</button>
+                </>
+            )
+        }
+    }
+
     return(
             <div className={styles.postsCont}>
                 <div className={styles.posts}>
@@ -109,12 +197,15 @@ function LoadReplies({ reloadFlag }) {
                         <h1>{mainPost.title}</h1>
                         <h3>{mainPost.authorUsername}</h3>
                         <p>{mainPost.text}</p>
+                        <CheckMainPost />
                     </div>
                 }
+                {msg && <p style={{ color: 'green' }}>{msg}</p>}
                 {replies.map((post) => (
                     <div className={styles.post} key={post.id}>
                         <h3> Reply from {post.authorUsername}</h3>
                         <p>{post.text}</p>
+                        <CheckReply post={post} />
                     </div>
                     ))}
                 </div>
@@ -130,7 +221,7 @@ export default function PostDetail() {
         <>
             <Navbar />
             <div className={styles.content}>
-                <LoadReplies reloadFlag={reloadFlag} />
+                <LoadReplies reloadFlag={reloadFlag} onReload={() => setReloadFlag(prev => !prev)} />
                 <Reply onReply={() => setReloadFlag(prev => !prev)} />
             </div>
         </>
