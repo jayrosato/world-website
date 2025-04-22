@@ -3,6 +3,7 @@ import styles from '../styles/post.module.css'
 import { useAuth } from './UserAuth'
 import Navbar from "./navbar";
 import { useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 
 function Reply({ onReply }){    
     const[view, setView] = useState(false)
@@ -70,6 +71,7 @@ function Reply({ onReply }){
 }
 
 function LoadReplies({ reloadFlag, onReload }) {
+    const navigate = useNavigate();
     const { postId } = useParams();
     const[mainPost, setMainPost] = useState(null)
     const[replies, setReplies] = useState([])
@@ -140,7 +142,7 @@ function LoadReplies({ reloadFlag, onReload }) {
         }
     }
 
-    async function deletePost(postId) {
+    async function deletePost(postId, redirect) {
         const url = `http://localhost:3000/forum/${postId}/delete`
         try{
             const response = await fetch(url, { 
@@ -154,8 +156,14 @@ function LoadReplies({ reloadFlag, onReload }) {
             });
             const data = await response.json();
             if (response.status === 200) {
+                console.log(redirect)
                 setMsg('Post deleted.')
-                onReload()
+                if(redirect==true){
+                    navigate('/forum')
+                }
+                else{
+                    onReload()
+                } 
             } 
             else {
                 const errorMessages = data.errors.map(error => error.msg);
@@ -166,25 +174,85 @@ function LoadReplies({ reloadFlag, onReload }) {
             console.error('Network or server error', err);
         }
     }
-    function CheckMainPost(){
+    function CheckMainPost( {post} ){
+        function EditView(){
+            const[editedTitle, setEditedTitle] = useState(post.title)
+            const[editedText, setEditedText] = useState(post.text)
+            const[editView, setEditView] = useState(false)
+            if(editView == false){
+                return(
+                    <>
+                    <h1>{mainPost.title}</h1>
+                        <h3>{mainPost.authorUsername}</h3>
+                        <p>{mainPost.text}</p>
+                        <button onClick={() => setEditView(true)}>Edit Post</button>
+                    </>
+                )
+            }
+            if(editView == true){
+                return(
+                    <>
+                        <p>Title</p>
+                        <input value={editedTitle} onChange={(event) => setEditedTitle(event.target.value)} />
+                        <p>Text</p>
+                        <input value={editedText} onChange={(event) => setEditedText(event.target.value)} />
+                        <button onClick = {() => updatePost(post.id, editedTitle, editedText)}>Save Changes</button>
+                        <button onClick = {() => setEditView(false)}>Nevermind</button>
+                        <button onClick = {() => deletePost(post.id, true)}>Delete Post</button>
+                    </>
+                )
+            }
+        }
+
         if(mainPost.author == userId){
             return(
                 <>
-                    <button>Edit Post</button>
-                    <button>Delete Post</button>
+                    <EditView />
                 </>
             )
         }
-    }
-    function CheckReply( {post} ){
-        const[reply, setReply] = useState(post.text)
-        if(post.author == userId){
+        else{
             return(
                 <>
-                    <input value={reply} onChange={(event) => setReply(event.target.value)} />
-                    <button onClick = {() => updatePost(post.id, post.title, reply)}>Edit Reply</button>
-                    <button onClick = {() => deletePost(post.id)}>Delete Reply</button>
+                    <h1>{mainPost.title}</h1>
+                    <h3>{mainPost.authorUsername}</h3>
+                    <p>{mainPost.text}</p>
                 </>
+            ) 
+        }
+    }
+
+    function CheckReply( {post} ){
+        const[reply, setReply] = useState(post.text)
+        const[editReply, setEditReply] = useState(false)
+        if(post.author == userId){
+            console.log(editReply)
+            if(editReply == true){
+                return(
+                    <>
+                        <input value={reply} onChange={(event) => setReply(event.target.value)} />
+                        <button onClick = {() => updatePost(post.id, post.title, reply)}>Save changes</button>
+                        <button onClick = {() => setEditReply(false)}>Nevermind</button>
+                        <button onClick = {() => deletePost(post.id, false)}>Delete Reply</button>
+                    </>
+                )
+            }
+            if(editReply == false){
+                return(
+                    <>
+                        <h3> Reply from {post.authorUsername}</h3>
+                        <p>{post.text}</p>
+                        <button onClick={() => setEditReply(true)}>Edit Reply</button>
+                    </>
+                )
+            }
+        }
+        else{
+            return(
+                    <>
+                        <h3> Reply from {post.authorUsername}</h3>
+                        <p>{post.text}</p>
+                    </>
             )
         }
     }
@@ -194,17 +262,12 @@ function LoadReplies({ reloadFlag, onReload }) {
                 <div className={styles.posts}>
                 {mainPost &&
                     <div className={styles.mainPost}>
-                        <h1>{mainPost.title}</h1>
-                        <h3>{mainPost.authorUsername}</h3>
-                        <p>{mainPost.text}</p>
-                        <CheckMainPost />
+                        <CheckMainPost post={mainPost}/>
                     </div>
                 }
                 {msg && <p style={{ color: 'green' }}>{msg}</p>}
                 {replies.map((post) => (
                     <div className={styles.post} key={post.id}>
-                        <h3> Reply from {post.authorUsername}</h3>
-                        <p>{post.text}</p>
                         <CheckReply post={post} />
                     </div>
                     ))}
