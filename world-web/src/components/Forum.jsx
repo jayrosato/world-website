@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import styles from '../styles/forum.module.css'
 import { useAuth } from './UserAuth'
 
-import Navbar from './navbar'
 
 
 function CreatePost(){
@@ -65,12 +64,9 @@ function LoadPosts() {
 export default function Forum() {
 
     return(
-        <div>
-            <Navbar />
             <div className={styles.content}>
                 <CreatePost />
                 <LoadPosts />
             </div>
-        </div>
     );
 }

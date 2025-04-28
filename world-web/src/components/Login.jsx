@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from './UserAuth'
-import Navbar from './navbar'
 
 import styles from '../styles/login.module.css'
 export default function LoginComponent() {
@@ -42,8 +41,6 @@ export default function LoginComponent() {
   };
 
   return (
-    <div>
-      <Navbar />
       <div className={styles.content}>
         <div className={styles.loginbox}>
           <h1>Login</h1>
@@ -60,6 +57,5 @@ export default function LoginComponent() {
           </div>
         </div>
       </div>
-    </div>
   );
 }

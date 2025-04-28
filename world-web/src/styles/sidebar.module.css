@@ -1,0 +1,38 @@
+.sidebar{
+    margin-top: 0;
+    margin-left: 2vw;
+    margin-right: 2vw;
+    margin-bottom: 5vh;
+    display: grid;
+    grid-template-columns: 100%;
+    row-gap: .5rem;
+    background-color: rgb(96,9,9);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+
+
+.link{
+    background-color: black;
+    border-radius: 8px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 20% 80%;
+    transition: all .5s;
+}
+
+.link:hover{
+    background-color: azure;
+    color: black;
+    cursor: pointer;
+}
+
+.link:hover .sbIcon{
+    filter: none;
+}
+
+.sbIcon{
+    max-height: 1.5rem;
+    filter: invert(100%) sepia(100%) saturate(100%) hue-rotate(0deg) brightness(100%) contrast(100%);
+}

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from './UserAuth'
 import { useNavigate } from "react-router-dom";
-import Navbar from './navbar'
+
 import styles from '../styles/join.module.css'
 
 export default function Join() {
@@ -52,8 +52,6 @@ export default function Join() {
     
 
     return(
-        <div>
-            <Navbar />
             <div className={styles.content}>
                 <h1>Join the world today!</h1>
                 <div className={styles.joinBox}>
@@ -82,7 +80,6 @@ export default function Join() {
                 <button onClick={()=>handleSubmit()}>Join Now!</button>
                 <a href='/'><button>Nevermind...</button></a>
             </div>
-        </div>
     )
 
 }

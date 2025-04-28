@@ -7,10 +7,10 @@
     padding-bottom: .2rem;
     padding-left: .5rem;
 
-    background-color: black;
+    background-color: rgb(96, 9, 9);
     color: white;
 
-    position: fixed;
+    position: sticky;
     top: 0; 
     width: 100%;
 }

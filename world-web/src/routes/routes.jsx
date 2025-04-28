@@ -1,4 +1,4 @@
-import Home from '../components/App';
+import Home from '../components/Home';
 import Faiths from '../components/faiths';
 import Login from '../components/Login';
 import Join from '../components/Join'

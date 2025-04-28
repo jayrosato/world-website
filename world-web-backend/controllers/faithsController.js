@@ -1,11 +1,10 @@
 
 const { faiths } = require('../db/model')
 
-async function getFaith(req, res) {
-    let faith = await faiths.getRecords(req.params.id, 'id')
-    // let faith = await db.getFaith(req.params.id);
-    res.json(faith)
-    console.log(faith)
+async function getFaiths(req, res) {
+    let faithsInfo = await faiths.getRecords()
+    console.log(faithsInfo)
+    res.json(faithsInfo)
 }
 
-module.exports = {getFaith}
+module.exports = {getFaiths}

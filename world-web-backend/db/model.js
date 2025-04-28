@@ -108,11 +108,10 @@ class Model {
                 const columnNames = this.columns.map(c=> c.create)
                 const statement ='id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,'+columnNames.join(', ')
                 try {
-                    console.log(statement)
                     await pool.query(`CREATE TABLE ${this.tableName} (${statement})`)
                 }
                 catch (err) {
-                    console.error(`Failed to create table ${this.tableName}`)
+                    console.error(`Failed to create table ${this.tableName}, ${err}`)
                     return 
                 }
             }
@@ -246,11 +245,10 @@ class Model {
         vals = vals.map(v => v == null ? 'NULL' : `'${v}'`);
         vals = vals.join(", ")
         try{
-            console.log(`INSERT INTO ${this.tableName} (${cols}) VALUES (${vals})`)
             await pool.query(`INSERT INTO ${this.tableName} (${cols}) VALUES (${vals})`)
         }
         catch(err){
-            console.error(`Error recording information to the database.`)
+            console.error(`Error recording information to the database. ${err}`)
         }
     }
     //{column:value}
@@ -298,6 +296,21 @@ class Model {
         }
     }
 
+    async deleteWhere(columnValue) {
+        const keys = Object.keys(columnValue);
+        const values = Object.values(columnValue);
+    
+        const conditions = keys.map((key, index) => `${key} = $${index + 1}`).join(' AND ');
+        const query = `DELETE FROM ${this.tableName} WHERE ${conditions}`;
+    
+        try {
+            await pool.query(query, values);
+        } catch (err) {
+            console.error(`Failed to delete value. ${err}`);
+            return;
+        }
+    }
+
     async getRecords(value, column){
         if(!value && !column){
             const { rows } = await pool.query(`SELECT * FROM ${this.tableName}`)
@@ -327,6 +340,25 @@ class Model {
             }
             catch(err){
                 console.error(`Error fetching records from ${this.tableName}`)
+                return
+            }
+        }
+
+        if(typeof filterColumns === 'string' && typeof filterValues === 'object'){
+            if(!operators){
+                operators = '='
+            }
+            for(let i=0; i<filterValues.length; i++){
+                const condition = `${filterColumns} ${operators} $${i+1}`
+                statement.push(condition)
+            }
+            const sql = statement.join(` OR `)
+            try{
+                const { rows } = await pool.query(`SELECT * FROM ${this.tableName} WHERE ${sql}`, [...filterValues])
+                return rows
+            }
+            catch(err){
+                console.error(`Error fetching records from ${this.tableName}: ${err}`)
                 return
             }
         }
@@ -511,7 +543,12 @@ posts.addField('parent_post', 'foreign key', null, true, false, null, null, 'pos
 posts.addField('created_at', 'timestamp', null, false, false, now)
 posts.addField('updated_at', 'timestamp', null, null, false, now, true)
 
-module.exports = { users, faiths, posts }
+const likes = new Model('likes')
+likes.addField('liker', 'foreign key', null, false, false, null, false, 'users', 'id', 'cascade')
+likes.addField('post', 'foreign key', null, false, false, null, null, 'posts', 'id', 'cascade')
+likes.addField('created_at', 'timestamp', null, false, false, now)
+module.exports = { users, faiths, posts, likes }
+
 
 
 function migrate(){

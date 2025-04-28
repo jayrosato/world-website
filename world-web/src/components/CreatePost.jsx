@@ -1,4 +1,3 @@
-import Navbar from './navbar';
 import { useState, useEffect } from 'react';
 import { useAuth } from './UserAuth'
 import styles from '../styles/create-post.module.css'
@@ -50,8 +49,6 @@ export default function CreatePost (){
     };
 
         return (
-            <div>
-            <Navbar />
             <div className={styles.content}>
                 <div className={styles.fields}>
                     <label>Post Title</label>
@@ -61,7 +58,6 @@ export default function CreatePost (){
                 </div>
                 <button onClick={()=>handleSubmit()}>Post to Forum</button>
                 {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
-            </div>
             </div>
         );
 }

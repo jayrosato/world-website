@@ -1,8 +1,12 @@
-.content {
-    margin-top: 20vh;
+.page{
+    min-height: 85vh;
+    margin-top: 5vh;
+    display: grid;
+    grid-template-columns: 25% 75%;
 }
 
 .faithTabs {
+    margin-left: .5vw;
     display: grid;
     grid-template-rows: 100%;
     grid-template-columns: repeat(auto-fill, 7rem);
@@ -10,19 +14,35 @@
 }
 
 .faithTabs >*{
+    background-color: rgb(96,9,9);
     border-radius: 15px 15px 0px 0px;
 }
 
+.activeTab{
+    background-color: rgb(58, 5, 5);
+}
 .cards {
-    background-color: #1a1a1a;
+    max-width: 65vw;
+    background-color: rgb(96,9,9);
+    border-radius: 8px;
+    padding: 1.5rem;
 }
 
 .faithCard {
+    margin: 2px;
     display: grid;
     grid-template-columns: 20% 80%;
     gap: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: rgb(58, 5, 5);
+    transition: transform 1s, border 1s;
 }
 
+.faithCard:hover {
+    border: 2px solid white;
+    transform: scale(1.02)
+}
 .faithText {
     color: white;
 }   

@@ -1,4 +1,3 @@
-import Navbar from './navbar';
 import { useState, useEffect } from 'react';
 import { useAuth } from './UserAuth'
 import styles from '../styles/profile.module.css'
@@ -86,8 +85,6 @@ export default function ProfileComponent (){
 
     if(view=='view'){
         return(
-            <div>
-            <Navbar />
             <div className={styles.content}>
                 <div className={styles.fields}>
                     <p>Username: </p>
@@ -98,7 +95,6 @@ export default function ProfileComponent (){
                 <button onClick={()=>setView('edit')}>Edit Profile</button>
                 {msg && <p style={{ color: 'green' }}>{msg}</p>}
                 <button className={styles.deleteButton} onClick={()=>setView('delete')}>Delete Profile</button>
-            </div>
             </div>
         )
     }

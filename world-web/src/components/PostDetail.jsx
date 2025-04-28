@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import styles from '../styles/post.module.css'
 import { useAuth } from './UserAuth'
-import Navbar from "./navbar";
+
 import { useParams } from "react-router-dom"
 import { useNavigate } from "react-router-dom";
 
@@ -75,6 +75,8 @@ function LoadReplies({ reloadFlag, onReload }) {
     const { postId } = useParams();
     const[mainPost, setMainPost] = useState(null)
     const[replies, setReplies] = useState([])
+    const[likesInfo, setLikesInfo] = useState([])
+
     const[userId, setUserId] = useState(null)
     const { user } = useAuth();
     const[errorMsg, setErrorMsg] = useState(null)
@@ -88,7 +90,9 @@ function LoadReplies({ reloadFlag, onReload }) {
     useEffect(() => {
         const fetchPostsJSON = async () => {
             const response = await fetch('http://localhost:3000/forum/'+postId);
-            const postsArray = await response.json();
+            const postsInfo = await response.json();
+            const postsArray = postsInfo[0]
+            const likesArray = postsInfo[1]
             const mainPost = postsArray.find(p => p.parent_post == null);
             setMainPost({
                     id: mainPost.id,
@@ -108,6 +112,7 @@ function LoadReplies({ reloadFlag, onReload }) {
                     text: r.text
                 }));
             setReplies(replies);
+            setLikesInfo(likesArray)
         };
     
         fetchPostsJSON();
@@ -174,6 +179,103 @@ function LoadReplies({ reloadFlag, onReload }) {
             console.error('Network or server error', err);
         }
     }
+
+    function Likes({ post }){
+        const[like, setLike] = useState(false)
+        const[postLikes, setPostLikes] = useState(0)
+        async function likePost(){
+            try{
+                const response = await fetch("http://localhost:3000/forum/like", {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        liker: user.id,
+                        post: post.id,
+                      })
+                });
+                const data = await response.json();
+    
+                if (response.status === 200) {
+                    setPostLikes(prevCount => prevCount + 1)
+                    setLike(true)
+                } 
+                else {
+                    const errorMessages = data.errors.map(error => error.msg);
+                    setErrorMsg(errorMessages);
+                }
+            } 
+            catch (err) {
+                console.error('Network or server error', err);
+            }
+        }
+
+        async function unlikePost(){
+            const url = `http://localhost:3000/forum/unlike`
+            try{
+                const response = await fetch(url, { 
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        liker: user.id,
+                        post: post.id
+                    })
+                });
+                const data = await response.json();
+                if (response.status === 200) {
+                    setPostLikes(prevCount => prevCount - 1)
+                    setLike(false)
+                } 
+                else {
+                    const errorMessages = data.errors.map(error => error.msg);
+                    setErrorMsg(errorMessages);
+                }
+            }
+            catch (err) {
+                console.error('Network or server error', err);
+            }
+        }
+        
+        useEffect(() => {
+                const userLikedPost = likesInfo.some((l) => l.liker == userId && l.post == post.id);
+                if (userLikedPost) {
+                    setLike(true);
+                } else {
+                    setLike(false);
+                }
+                const numberPostLikes = likesInfo.filter((l) => post.id == l.post)
+                setPostLikes(numberPostLikes.length)
+        }, [likesInfo, post.id]);
+        
+        if(!user){
+            return(
+                <div className={styles.likes}>
+                    <p>{postLikes} Likes</p>
+                    <a href='/login'>Login to like this post.</a>
+                </div>
+            )
+        }
+        if(like == true){
+                return(
+                    <div className={styles.likes}>
+                        <p>{postLikes} Likes</p>
+                        <img src='../public/thumb-up.svg' className={styles.likeButton} onClick={() => unlikePost()} />
+                    </div>
+                )
+        }
+        else{
+                return(
+                    <div className={styles.likes}>
+                        <p>{postLikes} Likes</p>
+                        <img src='../public/thumb-up-outline.svg' className={styles.likeButton} onClick={() => likePost()}/>
+                    </div>
+                )
+        }
+    }
+
     function CheckMainPost( {post} ){
         function EditView(){
             const[editedTitle, setEditedTitle] = useState(post.title)
@@ -182,10 +284,14 @@ function LoadReplies({ reloadFlag, onReload }) {
             if(editView == false){
                 return(
                     <>
-                    <h1>{mainPost.title}</h1>
-                        <h3>{mainPost.authorUsername}</h3>
-                        <p>{mainPost.text}</p>
-                        <button onClick={() => setEditView(true)}>Edit Post</button>
+                        <p> Post by {mainPost.authorUsername}</p>
+                        <div className={styles.mainTitle}>
+                            <h1>{mainPost.title}</h1>
+                            <img src='../public/comment-edit-outline.svg' className={styles.editButton} onClick={() => setEditView(true)}/>
+                        </div>
+                        <div className={styles.mainText}>
+                            <p>{mainPost.text}</p>
+                        </div> 
                     </>
                 )
             }
@@ -214,9 +320,13 @@ function LoadReplies({ reloadFlag, onReload }) {
         else{
             return(
                 <>
-                    <h1>{mainPost.title}</h1>
-                    <h3>{mainPost.authorUsername}</h3>
-                    <p>{mainPost.text}</p>
+                    <p> Post by {mainPost.authorUsername}</p>
+                    <div className={styles.mainTitle}>
+                        <h1>{mainPost.title}</h1>
+                    </div>
+                    <div className={styles.mainText}>
+                        <p>{mainPost.text}</p>
+                    </div> 
                 </>
             ) 
         }
@@ -239,20 +349,24 @@ function LoadReplies({ reloadFlag, onReload }) {
             }
             if(editReply == false){
                 return(
-                    <>
-                        <h3> Reply from {post.authorUsername}</h3>
+                    <div className={styles.reply}>
+                        <div className={styles.replyTitle}>
+                            <h3> Reply from {post.authorUsername}</h3>
+                            <img src='../public/comment-edit-outline.svg' className={styles.editButton} onClick={() => setEditReply(true)}/>
+                        </div>
                         <p>{post.text}</p>
-                        <button onClick={() => setEditReply(true)}>Edit Reply</button>
-                    </>
+                    </div>
                 )
             }
         }
         else{
             return(
-                    <>
-                        <h3> Reply from {post.authorUsername}</h3>
-                        <p>{post.text}</p>
-                    </>
+                <div className={styles.reply}>
+                <div className={styles.replyTitle}>
+                    <h3> Reply from {post.authorUsername}</h3>
+                </div>
+                <p>{post.text}</p>
+            </div>
             )
         }
     }
@@ -263,12 +377,15 @@ function LoadReplies({ reloadFlag, onReload }) {
                 {mainPost &&
                     <div className={styles.mainPost}>
                         <CheckMainPost post={mainPost}/>
+                        <Likes post={mainPost} />
                     </div>
                 }
                 {msg && <p style={{ color: 'green' }}>{msg}</p>}
+                <h2>Replies</h2>
                 {replies.map((post) => (
                     <div className={styles.post} key={post.id}>
                         <CheckReply post={post} />
+                        <Likes post={post} />
                     </div>
                     ))}
                 </div>
@@ -281,12 +398,9 @@ function LoadReplies({ reloadFlag, onReload }) {
 export default function PostDetail() {
     const [reloadFlag, setReloadFlag] = useState(false);
     return (
-        <>
-            <Navbar />
             <div className={styles.content}>
                 <LoadReplies reloadFlag={reloadFlag} onReload={() => setReloadFlag(prev => !prev)} />
                 <Reply onReply={() => setReloadFlag(prev => !prev)} />
             </div>
-        </>
     )
 }

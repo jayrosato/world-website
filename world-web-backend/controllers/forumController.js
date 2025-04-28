@@ -1,6 +1,6 @@
 //add users to replies/post detail view in getPost
 //return post id in create post? maybe
-const { posts } = require('../db/model')
+const { posts, likes } = require('../db/model')
 const {body, validationResult } = require('express-validator');
 
 async function getPosts(req, res) {
@@ -11,7 +11,10 @@ async function getPosts(req, res) {
 async function getPost(req, res) {
     const id = req.params.id
     let post = await posts.mergeFilterTable(['posts.id', 'title', 'text', 'author', 'parent_post', 'username'], 'users', 'author', 'id', {'posts.id':id, 'parent_post':id}, 'OR')
-    res.json(post)
+    let postIds = []
+    post.forEach((p) => {postIds.push(p.id)})
+    let postLikes = await likes.filterTable('post', postIds)
+    res.json([post, postLikes])
 }
 
 const lengthErr = 'must be between 1 and 255 characters.';
@@ -58,5 +61,21 @@ async function postDeletePost(req, res){
     }
 }
 
+async function likePost(req, res){
+    const {liker, post} = req.body;
+        await likes.createRecord({'liker':liker, 'post':post})
+        return res.status(200).json({ message: "Reply posted successfully" });
+}
 
-module.exports = { getPosts, getPost, postCreatePost, postUpdatePost, postDeletePost }
+async function unlikePost(req, res){
+    console.log('a')
+    const {liker, post} = req.body;
+    try{
+        await  likes.deleteWhere({'liker':liker, 'post':post})
+        return res.status(200).json({ message: "Post Unliked" });;
+    }
+    catch(err){
+        return res.status(500).json({ error: "Unlike failed." });
+    }
+}
+module.exports = { getPosts, getPost, postCreatePost, postUpdatePost, postDeletePost, likePost, unlikePost }

@@ -18,7 +18,8 @@ export default function HomeImageCarousel() {
             else{
             setCount((count) => count+1)
             }
-        }, 5000)}, [count])
+        }, 10000)}, [count])
+
 
     function nextImg() {
         if(count >= images.length-1){
@@ -28,6 +29,7 @@ export default function HomeImageCarousel() {
         setCount(count+1)
         }
     }
+
     function prevImg() {
         if(count <= 0){
             setCount(images.length-1)
@@ -48,9 +50,24 @@ export default function HomeImageCarousel() {
             )
         }
     }
-    function Image(){
-        return(<img className={`${styles.image} ${styles.fade}`} src={images[count]}/>)
+    function Overlay(){
+        return(
+            <div className={styles.overlay}>
+                <h1>Explore the World!</h1>
+                <p>Begin your journey into the world of Amadya!</p>
+                <button>Click here to begin!</button>
+            </div>
+        )
     }
+    function Image(){
+        return(
+            <div className={styles.frontText}>
+                <Overlay />
+                <img className={`${styles.image} ${styles.fade}`} src={images[count]}/>
+            </div>
+        )
+    }
+    
   return (
       <div className={styles.imageCont}>
         <button className={styles.prevButton} onClick={() => prevImg()}>&#10094;</button>

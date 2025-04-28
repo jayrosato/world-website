@@ -11,7 +11,7 @@
 
 .fade {
     animation-name: fade;
-    animation-duration: 1.5s;
+    animation-duration: 1s;
   }
   
 @keyframes fade {
@@ -21,13 +21,13 @@
 
 .nextButton {
     position: absolute;
-    top: 135vh;
+    top: 50vh;
     right: 5px;
 }
 
 .prevButton {
     position: absolute;
-    top: 135vh;
+    top: 50vh;
     left: 5px;
 } 
 
@@ -41,7 +41,7 @@
 .dots {
     position: absolute;
     max-width: 20vw;
-    top: 180vh;
+    top: 90vh;
     left: 50vw;
     text-align: center;
     justify-content: space-between;
@@ -74,3 +74,10 @@
 .dot:hover {
     background-color: #717171;
 }  
+
+.overlay {
+    text-align: center;
+    margin-left: 35vw;
+    position: absolute;
+    top: 50vh;
+}

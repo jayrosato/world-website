@@ -30,7 +30,7 @@ app.use(passport.session())
 app.use(express.urlencoded({extended: false}))
 
 app.use('/', indexRouter)
-app.all('.faiths', faithsRouter)
+app.all('/faiths', faithsRouter)
 app.all('/faiths/:id', faithsRouter)
 
 app.use(express.json());
