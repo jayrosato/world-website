@@ -1,66 +1,72 @@
-import HomeImageCarousel from './homeImageCarousel'
 import styles from '../styles/home.module.css'
 
 import { useState } from 'react'
 
-
-function App() {
-  function Card({ id, title, image, description, isExpanded, onClick }) {
-    return (
-      <div className={`${styles.card} ${isExpanded ? styles.active : ""}`} onClick={onClick}>
-        <div className={styles.cardInfo}>
-          <img src={image} className={styles.cardImage} />
-          <h3>{title}</h3>
-          <p>{description}</p>
-        </div>
-        {isExpanded && (
-          <div className={styles.cardExpanded}>
-            <h2>Explore the Company</h2>
-            <p>Expanded text</p>
-            <a href="/faiths">Link here</a>
-          </div>
-        )}
+function Menu(){
+  return(
+    <div className={styles.menu}>
+      <div className={styles.menuBox} style={{ '--i': 1 }}>
+        <img className={styles.menuIcon} src='/house.png' />
+        <p>Line 1</p>
       </div>
-    );
-  }
-
-  function CardList() {
-    const [expandedCardId, setExpandedCardId] = useState(null);
-    const cards = [
-      { id: 1, title: "The Company", image: "/mfi_ruthless.png", description: "Company description here." },
-      { id: 2, title: "The Company", image: "/mfi_ruthless.png", description: "Company description here." },
-      { id: 3, title: "The Company", image: "/mfi_ruthless.png", description: "Company description here." },
-      { id: 4, title: "The Company", image: "/mfi_ruthless.png", description: "Company description here." },
-    ];
-  
-    return (
-      <div className={styles.highlight}>
-        {cards.map(card => (
-          <Card
-            key={card.id}
-            id={card.id}
-            title={card.title}
-            image={card.image}
-            description={card.description}
-            isExpanded={expandedCardId == card.id}
-            onClick={() => setExpandedCardId(expandedCardId == card.id ? null : card.id)}
-          />
-        ))}
+      <div className={styles.menuBox} style={{ '--i': 2 }}>
+        <img className={styles.menuIcon} src='/house.png' />
+        <p>Line 2</p>
       </div>
-    );
-  }
-
-
-  return (
-    <>
-      <div className={styles.featured}>
-          <HomeImageCarousel />
+      <div className={styles.menuBox} style={{ '--i': 3 }}>
+        <img className={styles.menuIcon} src='/house.png' />
+        <p>Line 3</p>
       </div>
-      <div className={styles.highlight}>
-          <CardList />
-      </div>
-    </>
+    </div>
   )
+}
+
+function HeaderTabs(){
+  return(
+    <div className={styles.headerTabs}>
+        <div className={styles.headerTab} style={{ '--i': 1 }}>
+          <img className={styles.menuIcon} src='/house.png' />
+          <p>Line 1</p>
+        </div>
+        <div className={styles.headerTab} style={{ '--i': 2 }}>
+          <img className={styles.menuIcon} src='/house.png' />
+          <p>Line 2</p>
+        </div>
+        <div className={styles.headerTab} style={{ '--i': 3 }}>
+          <img className={styles.menuIcon} src='/house.png' />
+          <p>Line 3</p>
+        </div>
+      </div>
+  )
+}
+function App(){
+    const[headerTabs, setHeaderTabs] = useState(false)
+    const[menu, setMenu] = useState(false)
+
+    return(
+      <>
+        <div className={styles.header} onMouseEnter={() => setHeaderTabs(true)} onMouseLeave={() => setHeaderTabs(false)}></div>
+        {headerTabs ? <HeaderTabs /> : null}
+        
+        <div className={styles.frame}>
+
+          <div className={styles.menuTrigger} onClick={() => setMenu(!menu)}></div>
+            {menu ? <Menu /> : null}
+        </div>
+
+          <div className={styles.homeContent}>
+            <img className={styles.art} src='/art.png' />
+
+            <div className={styles.openText}>
+              <p>There would be ideally a decent amount of text here.</p>
+            </div>
+          </div>
+          
+        <div className={styles.test}>
+
+        </div>
+      </>
+    )
 }
 
 export default App

@@ -12,9 +12,7 @@ const router = createBrowserRouter(routes)
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <UserAuth>
-      <Navbar />
         <RouterProvider router = {router} />
-      <Footer />
     </UserAuth>
   </StrictMode>,
 )
